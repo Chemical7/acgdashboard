@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Pipeline Dashboard - Africa Communications Media Group</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --brand-navy: #0A1E3E;
+            --brand-orange: #FF6B35;
+            --brand-coral: #FF8C5A;
+            --brand-green: #4CAF50;
+            --brand-yellow: #FFB74D;
+            --success: #4ECDC4;
+            --warning: #FFE66D;
+            --error: #FF6B6B;
+            --card-bg: #FFFFFF;
+            --text: #1A1A1A;
+            --text-light: #666666;
+            --border: #E0E0E0;
+            --bg-light: #F5F7FA;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--brand-navy);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-coral) 50%, var(--brand-yellow) 100%);
+            opacity: 0.1;
+            clip-path: polygon(30% 0, 100% 0, 100% 100%, 0% 100%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        header {
+            margin-bottom: 2rem;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-circles {
+            width: 60px;
+            height: 60px;
+            position: relative;
+        }
+
+        .circle {
+            position: absolute;
+            border: 3px solid white;
+            border-radius: 50%;
+        }
+
+        .circle-1 {
+            width: 60px;
+            height: 60px;
+            top: 0;
+            left: 0;
+        }
+
+        .circle-2 {
+            width: 45px;
+            height: 45px;
+            top: 7.5px;
+            left: 7.5px;
+        }
+
+        .circle-3 {
+            width: 30px;
+            height: 30px;
+            top: 15px;
+            left: 15px;
+        }
+
+        .brand-name {
+            color: white;
+            font-weight: 800;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            color: white;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+        }
+
+        .controls-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .date-filter {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .date-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .date-input-group label {
+            font-size: 0.75rem;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .date-input-group input {
+            padding: 0.6rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .date-input-group input::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        .filter-btn,
+        .refresh-btn {
+            background: var(--brand-orange);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .filter-btn:hover,
+        .refresh-btn:hover {
+            background: var(--brand-coral);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .filter-btn:active,
+        .refresh-btn:active {
+            transform: scale(0.95);
+        }
+
+        .clear-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clear-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .status-info {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .last-updated {
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 2rem 3rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            text-align: center;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--brand-orange);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--card-bg);
+            padding: 1.8rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out backwards;
+            border-top: 4px solid var(--brand-orange);
+        }
+
+        .metric-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .metric-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .metric-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .metric-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .metric-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand-navy);
+            line-height: 1;
+        }
+
+        .metric-change {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out backwards;
+        }
+
+        .chart-card:nth-child(1) {
+            animation-delay: 0.6s;
+        }
+
+        .chart-card:nth-child(2) {
+            animation-delay: 0.7s;
+        }
+
+        .chart-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--brand-navy);
+        }
+
+        .table-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.6s ease-out 0.8s backwards;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        thead {
+            background: var(--brand-navy);
+        }
+
+        th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th:first-child {
+            border-radius: 10px 0 0 0;
+        }
+
+        th:last-child {
+            border-radius: 0 10px 0 0;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(255, 107, 53, 0.05);
+            transform: translateX(5px);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-successful {
+            background: rgba(78, 205, 196, 0.2);
+            color: #2ba89c;
+        }
+
+        .status-unsuccessful {
+            background: rgba(255, 107, 107, 0.2);
+            color: #d64545;
+        }
+
+        .status-postponed {
+            background: rgba(255, 230, 109, 0.3);
+            color: #c9a400;
+        }
+
+        .status-proposal {
+            background: rgba(255, 107, 53, 0.2);
+            color: #cc5528;
+        }
+
+        .status-shortlisted {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+        }
+
+        .table-scroll {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .table-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .table-scroll::-webkit-scrollbar-track {
+            background: var(--border);
+            border-radius: 10px;
+        }
+
+        .table-scroll::-webkit-scrollbar-thumb {
+            background: var(--brand-orange);
+            border-radius: 10px;
+        }
+
+        .error-message {
+            background: var(--error);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .controls-section {
+                flex-direction: column;
+            }
+
+            .date-filter {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-scroll {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <div>Loading data...</div>
+    </div>
+
+    <div class="container">
+        <div class="error-message" id="errorMessage"></div>
+
+        <header>
+            <div class="header-top">
+                <div class="logo-section">
+                    <div class="logo-circles">
+                        <div class="circle circle-1"></div>
+                        <div class="circle circle-2"></div>
+                        <div class="circle circle-3"></div>
+                    </div>
+                    <div class="brand-name">Africa Communications<br>Media Group</div>
+                </div>
+            </div>
+            <h1>Client Pipeline Dashboard</h1>
+            <div class="subtitle">Real-time Performance Tracking</div>
+        </header>
+
+        <div class="controls-section">
+            <div class="date-filter">
+                <div class="date-input-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="date-input-group">
+                    <label for="endDate">End Date</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button class="filter-btn" onclick="applyDateFilter()">
+                    <span>📅</span> Apply Filter
+                </button>
+                <button class="clear-btn" onclick="clearDateFilter()">
+                    Clear
+                </button>
+            </div>
+            <div class="status-info">
+                <div class="last-updated" id="lastUpdated">Last updated: Never</div>
+                <button class="refresh-btn" onclick="loadData()">
+                    <span>🔄</span> Refresh
+                </button>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-label">Total Clients</div>
+                <div class="metric-value" id="totalClients">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Successful</div>
+                <div class="metric-value" id="successful">0</div>
+                <div class="metric-change" id="successRate">0% Success Rate</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">In Progress</div>
+                <div class="metric-value" id="inProgress">0</div>
+                <div class="metric-change">Proposals + Shortlisted</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Postponed</div>
+                <div class="metric-value" id="postponed">0</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Unsuccessful</div>
+                <div class="metric-value" id="unsuccessful">0</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-card">
+                <div class="chart-title">Status Breakdown</div>
+                <canvas id="statusChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Projects by Quarter</div>
+                <canvas id="quarterChart"></canvas>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="chart-title">Client Details</div>
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Quarter</th>
+                            <th>Client</th>
+                            <th>Contact</th>
+                            <th>Service</th>
+                            <th>Region</th>
+                            <th>Status</th>
+                            <th>Source</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Google Sheets Configuration
+        // Using Google Visualization API to get CSV data
+        const SHEET_ID = '1rRBPWB2t8S5UPPhNGMi7prvkR98NAvswg-0RN8Pf1z0';
+        const SHEET_NAME = 'Client Pipeline';
+
+        let statusChart = null;
+        let quarterChart = null;
+        let allClients = [];
+        let filteredClients = [];
+
+        // Date parsing helper
+        function parseQuarterDate(quarter) {
+            // Convert quarter strings like "Q1-Q2" or "Q3" to dates
+            // Assuming current year 2024
+            const year = 2024;
+            if (quarter.includes('Q1')) return new Date(year, 0, 1);
+            if (quarter.includes('Q2')) return new Date(year, 3, 1);
+            if (quarter.includes('Q3')) return new Date(year, 6, 1);
+            if (quarter.includes('Q4')) return new Date(year, 9, 1);
+            return new Date(year, 0, 1);
+        }
+
+        // Apply date filter
+        function applyDateFilter() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            filteredClients = allClients.filter(client => {
+                const clientDate = parseQuarterDate(client.quarter);
+                return clientDate >= start && clientDate <= end;
+            });
+
+            updateDashboard(filteredClients);
+        }
+
+        // Clear date filter
+        function clearDateFilter() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            filteredClients = allClients;
+            updateDashboard(filteredClients);
+        }
+
+        // Simple CSV Parser
+        function parseCSV(text) {
+            const result = [];
+            let row = [];
+            let inQuotes = false;
+            let currentField = '';
+
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const nextChar = text[i + 1];
+
+                if (char === '"') {
+                    if (inQuotes && nextChar === '"') {
+                        currentField += '"';
+                        i++; // Skip escape quote
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    row.push(currentField);
+                    currentField = '';
+                } else if ((char === '\r' || char === '\n') && !inQuotes) {
+                    if (char === '\r' && nextChar === '\n') i++;
+                    if (currentField || row.length > 0) row.push(currentField);
+                    if (row.length > 0) result.push(row);
+                    row = [];
+                    currentField = '';
+                } else {
+                    currentField += char;
+                }
+            }
+            // Add last field/row if exists
+            if (currentField || row.length > 0) {
+                row.push(currentField);
+                result.push(row);
+            }
+            return result;
+        }
+
+        // Fetch data from Google Sheets via CSV
+        async function loadData() {
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+
+            loading.classList.add('active');
+            errorMessage.classList.remove('active');
+
+            try {
+                // Construct URL for CSV export
+                // Note: tqx=out:csv returns CSV format
+                // sheet parameter specifies which sheet to load
+                const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+                }
+
+                const text = await response.text();
+                const rows = parseCSV(text);
+
+                // Use slice(1) to skip header row
+                // Map CSV columns to object properties
+                // Note: CSV values are strings, so we might need to handle quotes if parseCSV doesn't clean them fully
+                // Our simple parser handles quotes, but let's be safe
+
+                if (rows.length < 2) {
+                    throw new Error('No data found in the spreadsheet');
+                }
+
+                allClients = rows.slice(1).map(row => ({
+                    quarter: row[0] || '',
+                    client: row[1] || '',
+                    contact: row[2] || '',
+                    email: row[3] || '',
+                    service: row[4] || '',
+                    region: row[5] || '',
+                    status: row[6] || '',
+                    budget: row[7] || '',
+                    comments: row[8] || '',
+                    source: row[9] || ''
+                }));
+
+                filteredClients = allClients;
+                updateDashboard(filteredClients);
+
+                const now = new Date();
+                document.getElementById('lastUpdated').textContent =
+                    `Last updated: ${now.toLocaleTimeString()}`;
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                errorMessage.textContent = `Error: ${error.message}. Please check if the sheet is public or the URL is correct.`;
+                errorMessage.classList.add('active');
+            } finally {
+                loading.classList.remove('active');
+            }
+        }
+
+        function updateDashboard(clients) {
+            const total = clients.length;
+            const statusCounts = {};
+            const quarterCounts = {};
+
+            clients.forEach(client => {
+                statusCounts[client.status] = (statusCounts[client.status] || 0) + 1;
+                quarterCounts[client.quarter] = (quarterCounts[client.quarter] || 0) + 1;
+            });
+
+            const successful = statusCounts['Successful'] || 0;
+            const unsuccessful = statusCounts['Unsuccessful'] || 0;
+            const postponed = statusCounts['Project Postponed'] || 0;
+            const proposals = statusCounts['Proposal Shared'] || 0;
+            const shortlisted = statusCounts['Shortlisted'] || 0;
+            const inProgress = proposals + shortlisted;
+
+            document.getElementById('totalClients').textContent = total;
+            document.getElementById('successful').textContent = successful;
+            document.getElementById('unsuccessful').textContent = unsuccessful;
+            document.getElementById('postponed').textContent = postponed;
+            document.getElementById('inProgress').textContent = inProgress;
+
+            const successRate = total > 0 ? Math.round((successful / total) * 100) : 0;
+            document.getElementById('successRate').textContent = `${successRate}% Success Rate`;
+
+            updateStatusChart(statusCounts);
+            updateQuarterChart(quarterCounts);
+            updateTable(clients);
+        }
+
+        function updateStatusChart(statusCounts) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+
+            if (statusChart) {
+                statusChart.destroy();
+            }
+
+            const labels = Object.keys(statusCounts);
+            const data = Object.values(statusCounts);
+            const colors = labels.map(label => {
+                if (label === 'Successful') return 'rgba(78, 205, 196, 0.8)';
+                if (label === 'Unsuccessful') return 'rgba(255, 107, 107, 0.8)';
+                if (label === 'Project Postponed') return 'rgba(255, 230, 109, 0.8)';
+                if (label === 'Proposal Shared') return 'rgba(255, 107, 53, 0.8)';
+                if (label === 'Shortlisted') return 'rgba(76, 175, 80, 0.8)';
+                return 'rgba(150, 150, 150, 0.8)';
+            });
+
+            statusChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: colors,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                font: {
+                                    size: 12,
+                                    weight: '600',
+                                    family: 'Montserrat'
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateQuarterChart(quarterCounts) {
+            const ctx = document.getElementById('quarterChart').getContext('2d');
+
+            if (quarterChart) {
+                quarterChart.destroy();
+            }
+
+            const labels = Object.keys(quarterCounts);
+            const data = Object.values(quarterCounts);
+
+            quarterChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Number of Projects',
+                        data: data,
+                        backgroundColor: 'rgba(255, 107, 53, 0.8)',
+                        borderRadius: 8,
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 5,
+                                font: {
+                                    family: 'Montserrat'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: {
+                                    family: 'Montserrat',
+                                    weight: '600'
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateTable(clients) {
+            const tbody = document.getElementById('clientTableBody');
+            tbody.innerHTML = '';
+
+            clients.forEach(client => {
+                const row = document.createElement('tr');
+
+                const statusClass =
+                    client.status === 'Successful' ? 'status-successful' :
+                        client.status === 'Unsuccessful' ? 'status-unsuccessful' :
+                            client.status === 'Project Postponed' ? 'status-postponed' :
+                                client.status === 'Proposal Shared' ? 'status-proposal' :
+                                    'status-shortlisted';
+
+                row.innerHTML = `
+                    <td><strong>${client.quarter}</strong></td>
+                    <td><strong>${client.client}</strong></td>
+                    <td>${client.contact}</td>
+                    <td>${client.service}</td>
+                    <td>${client.region}</td>
+                    <td><span class="status-badge ${statusClass}">${client.status}</span></td>
+                    <td>${client.source}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        // Load data on page load
+        loadData();
+
+        // Auto-refresh every 5 minutes
+        setInterval(loadData, 300000);
+    </script>
+</body>
+
+</html>
